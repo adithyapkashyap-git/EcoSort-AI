@@ -1,0 +1,55 @@
+:root {
+  --color-bg: #f4fbf6;
+  --color-bg-strong: #e3f5e9;
+  --color-bg-deep: #d9efe2;
+  --color-surface: rgba(255, 255, 255, 0.9);
+  --color-surface-strong: #ffffff;
+  --color-surface-muted: rgba(255, 255, 255, 0.72);
+  --color-surface-elevated: rgba(255, 255, 255, 0.76);
+  --color-primary: #1f8f5f;
+  --color-primary-dark: #166646;
+  --color-accent: #7ed7a8;
+  --color-accent-soft: #dff5e7;
+  --color-text: #123126;
+  --color-text-soft: #5b7267;
+  --color-border: rgba(31, 143, 95, 0.12);
+  --color-border-strong: rgba(255, 255, 255, 0.52);
+  --gradient-primary: linear-gradient(135deg, #1f8f5f 0%, #44b27a 100%);
+  --gradient-bg: radial-gradient(circle at top left, rgba(126, 215, 168, 0.35), transparent 28%),
+    radial-gradient(circle at bottom right, rgba(31, 143, 95, 0.14), transparent 30%),
+    linear-gradient(180deg, #edf9f1 0%, #f9fcfa 100%);
+  --shadow-soft: 0 20px 45px rgba(18, 49, 38, 0.08);
+  --shadow-card: 0 12px 28px rgba(27, 91, 62, 0.12);
+  --shadow-floating: 0 30px 60px rgba(20, 66, 46, 0.14);
+  --radius-lg: 28px;
+  --radius-md: 20px;
+  --radius-sm: 14px;
+  --container-width: 1200px;
+  --transition-base: 220ms ease;
+  --transition-slow: 320ms ease;
+}
+
+[data-theme='dark'] {
+  --color-bg: #081510;
+  --color-bg-strong: #10221a;
+  --color-bg-deep: #163025;
+  --color-surface: rgba(10, 24, 18, 0.76);
+  --color-surface-strong: #12241c;
+  --color-surface-muted: rgba(16, 34, 26, 0.82);
+  --color-surface-elevated: rgba(12, 28, 21, 0.84);
+  --color-primary: #47d28a;
+  --color-primary-dark: #9cf0c4;
+  --color-accent: #21553c;
+  --color-accent-soft: rgba(71, 210, 138, 0.18);
+  --color-text: #ecfff4;
+  --color-text-soft: #9ab9aa;
+  --color-border: rgba(156, 240, 196, 0.14);
+  --color-border-strong: rgba(156, 240, 196, 0.14);
+  --gradient-primary: linear-gradient(135deg, #1d8a58 0%, #47d28a 100%);
+  --gradient-bg: radial-gradient(circle at top left, rgba(71, 210, 138, 0.16), transparent 28%),
+    radial-gradient(circle at bottom right, rgba(18, 74, 49, 0.45), transparent 34%),
+    linear-gradient(180deg, #06100d 0%, #0b1813 100%);
+  --shadow-soft: 0 20px 45px rgba(0, 0, 0, 0.28);
+  --shadow-card: 0 16px 34px rgba(0, 0, 0, 0.32);
+  --shadow-floating: 0 24px 54px rgba(0, 0, 0, 0.36);
+}

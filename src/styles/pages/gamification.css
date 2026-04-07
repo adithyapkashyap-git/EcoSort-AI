@@ -1,0 +1,76 @@
+.rewards-screen__hero {
+  display: grid;
+  grid-template-columns: minmax(320px, 0.9fr) minmax(0, 1.1fr);
+  gap: 20px;
+}
+
+.points-card strong {
+  display: block;
+  margin-top: 12px;
+  font-size: clamp(3rem, 6vw, 5rem);
+  line-height: 1;
+}
+
+.points-card p {
+  margin: 16px 0 0;
+  color: var(--color-text-soft);
+  line-height: 1.7;
+}
+
+.leaderboard-list,
+.achievements-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.leaderboard-list__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  border-radius: 18px;
+  background: var(--color-surface-muted);
+}
+
+.achievements-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-top: 20px;
+}
+
+.achievement-card {
+  text-align: center;
+}
+
+.achievement-card--active {
+  border-color: rgba(31, 143, 95, 0.36);
+}
+
+.achievement-card__badge {
+  display: grid;
+  place-items: center;
+  width: 72px;
+  height: 72px;
+  margin: 0 auto 14px;
+  border-radius: 22px;
+  color: #ffffff;
+  font-size: 1.1rem;
+  font-weight: 800;
+  background: var(--gradient-primary);
+}
+
+.achievement-card h2 {
+  margin: 10px 0;
+}
+
+.achievement-card p {
+  margin: 0;
+  color: var(--color-text-soft);
+  line-height: 1.7;
+}
+
+@media (max-width: 960px) {
+  .rewards-screen__hero,
+  .achievements-grid {
+    grid-template-columns: 1fr;
+  }
+}

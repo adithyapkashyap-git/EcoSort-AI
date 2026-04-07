@@ -1,0 +1,119 @@
+.result-screen__grid {
+  display: grid;
+  grid-template-columns: minmax(320px, 0.9fr) minmax(0, 1.1fr);
+  gap: 24px;
+}
+
+.result-screen__preview img {
+  width: 100%;
+  border-radius: 22px;
+  object-fit: cover;
+  aspect-ratio: 4 / 4.2;
+}
+
+.result-screen__header {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.result-screen__header h1 {
+  margin: 10px 0 0;
+  font-size: clamp(2.2rem, 4vw, 3.4rem);
+}
+
+.result-screen__confidence {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 16px;
+  border-radius: 999px;
+  color: var(--color-primary-dark);
+  font-weight: 700;
+  background: var(--color-accent-soft);
+}
+
+.result-screen__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.result-screen__meta span {
+  padding: 10px 14px;
+  border-radius: 999px;
+  color: var(--color-text-soft);
+  background: var(--color-surface-muted);
+}
+
+.result-screen__section h2 {
+  margin: 28px 0 14px;
+}
+
+.result-screen__section ul {
+  margin: 0;
+  padding-left: 20px;
+  color: var(--color-text-soft);
+  line-height: 1.8;
+}
+
+.impact-card h3 {
+  margin: 12px 0 16px;
+  font-size: 1.35rem;
+}
+
+.impact-card__stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.impact-card__stats article {
+  padding: 18px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.66);
+}
+
+.impact-card__stats strong,
+.impact-card__stats span {
+  display: block;
+}
+
+.impact-card__stats span {
+  margin-top: 8px;
+  color: var(--color-text-soft);
+}
+
+.result-screen__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 26px;
+}
+
+.result-screen__message,
+.result-screen__link {
+  color: var(--color-text-soft);
+}
+
+.result-screen__link a {
+  color: var(--color-primary-dark);
+  font-weight: 700;
+}
+
+.result-screen__empty {
+  text-align: center;
+}
+
+@media (max-width: 960px) {
+  .result-screen__grid,
+  .impact-card__stats {
+    grid-template-columns: 1fr;
+  }
+
+  .result-screen__header {
+    flex-direction: column;
+  }
+}

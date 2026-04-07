@@ -1,0 +1,28 @@
+.card {
+  padding: 24px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-elevated);
+  box-shadow: var(--shadow-soft);
+  transition:
+    transform var(--transition-base),
+    box-shadow var(--transition-base),
+    border-color var(--transition-base);
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-floating);
+}
+
+.card--soft {
+  background: var(--color-surface-muted);
+}
+
+.card--accent {
+  background: linear-gradient(
+    180deg,
+    rgba(31, 143, 95, 0.14) 0%,
+    rgba(255, 255, 255, 0.92) 100%
+  );
+}
