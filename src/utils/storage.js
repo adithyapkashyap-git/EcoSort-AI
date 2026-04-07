@@ -1,5 +1,7 @@
 export const STORAGE_KEYS = {
   theme: 'ecosort-theme',
+  users: 'ecosort-users',
+  session: 'ecosort-session',
   latestResult: 'ecosort-latest-result',
   savedResults: 'ecosort-saved-results',
   metrics: 'ecosort-metrics',
@@ -37,4 +39,20 @@ export function writeStorage(key, value) {
   } catch (error) {
     console.error(`Unable to write storage key: ${key}`, error);
   }
+}
+
+export function removeStorage(key) {
+  if (typeof window === 'undefined') {
+    return;
+  }
+
+  try {
+    window.localStorage.removeItem(key);
+  } catch (error) {
+    console.error(`Unable to remove storage key: ${key}`, error);
+  }
+}
+
+export function getUserScopedStorageKey(userId, key) {
+  return `ecosort-user-${userId}-${key}`;
 }

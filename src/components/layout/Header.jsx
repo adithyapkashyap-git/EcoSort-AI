@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { useAppContext } from '../../context/AppContext';
 import Button from '../ui/Button';
 import '../../styles/components/header.css';
@@ -15,7 +15,8 @@ const navLinks = [
 
 function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { isDarkMode, toggleTheme } = useAppContext();
+  const navigate = useNavigate();
+  const { currentUser, isDarkMode, logout, toggleTheme } = useAppContext();
 
   const handleToggleMenu = () => {
     setIsMenuOpen((currentValue) => !currentValue);
@@ -23,6 +24,12 @@ function Header() {
 
   const handleCloseMenu = () => {
     setIsMenuOpen(false);
+  };
+
+  const handleLogout = () => {
+    logout();
+    handleCloseMenu();
+    navigate('/login', { replace: true });
   };
 
   return (
@@ -70,6 +77,10 @@ function Header() {
             </nav>
 
             <div className="site-header__actions">
+              <div className="user-pill">
+                <span className="user-pill__name">{currentUser?.fullName}</span>
+                <span className="user-pill__email">{currentUser?.email}</span>
+              </div>
               <button
                 className="theme-toggle"
                 type="button"
@@ -80,6 +91,9 @@ function Header() {
               </button>
               <Button to="/result" onClick={handleCloseMenu}>
                 Latest Scan
+              </Button>
+              <Button variant="ghost" onClick={handleLogout}>
+                Logout
               </Button>
             </div>
           </div>

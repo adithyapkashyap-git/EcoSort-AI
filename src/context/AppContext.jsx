@@ -1,7 +1,10 @@
 import { createContext, useContext, useEffect, useState } from 'react';
+import { hashPassword, normalizeEmail, sanitizeUser } from '../utils/auth';
 import {
   defaultMetrics,
+  getUserScopedStorageKey,
   readStorage,
+  removeStorage,
   STORAGE_KEYS,
   writeStorage,
 } from '../utils/storage';
@@ -19,15 +22,13 @@ export function AppProvider({ children }) {
   const [theme, setTheme] = useState(() =>
     readStorage(STORAGE_KEYS.theme, 'light')
   );
-  const [latestResult, setLatestResult] = useState(() =>
-    readStorage(STORAGE_KEYS.latestResult, null)
+  const [currentUser, setCurrentUser] = useState(() =>
+    readStorage(STORAGE_KEYS.session, null)
   );
-  const [savedResults, setSavedResults] = useState(() =>
-    readStorage(STORAGE_KEYS.savedResults, [])
-  );
-  const [metrics, setMetrics] = useState(() =>
-    mergeMetrics(readStorage(STORAGE_KEYS.metrics, defaultMetrics))
-  );
+  const [latestResult, setLatestResult] = useState(null);
+  const [savedResults, setSavedResults] = useState([]);
+  const [metrics, setMetrics] = useState(defaultMetrics);
+  const [isUserDataReady, setIsUserDataReady] = useState(false);
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
@@ -35,19 +36,123 @@ export function AppProvider({ children }) {
   }, [theme]);
 
   useEffect(() => {
-    writeStorage(STORAGE_KEYS.latestResult, latestResult);
-  }, [latestResult]);
+    if (currentUser?.id) {
+      setIsUserDataReady(false);
+      writeStorage(STORAGE_KEYS.session, currentUser);
+      setLatestResult(
+        readStorage(
+          getUserScopedStorageKey(currentUser.id, STORAGE_KEYS.latestResult),
+          null
+        )
+      );
+      setSavedResults(
+        readStorage(
+          getUserScopedStorageKey(currentUser.id, STORAGE_KEYS.savedResults),
+          []
+        )
+      );
+      setMetrics(
+        mergeMetrics(
+          readStorage(
+            getUserScopedStorageKey(currentUser.id, STORAGE_KEYS.metrics),
+            defaultMetrics
+          )
+        )
+      );
+      setIsUserDataReady(true);
+      return;
+    }
+
+    removeStorage(STORAGE_KEYS.session);
+    setLatestResult(null);
+    setSavedResults([]);
+    setMetrics(defaultMetrics);
+    setIsUserDataReady(true);
+  }, [currentUser]);
 
   useEffect(() => {
-    writeStorage(STORAGE_KEYS.savedResults, savedResults);
-  }, [savedResults]);
+    if (!currentUser?.id || !isUserDataReady) {
+      return;
+    }
+
+    writeStorage(
+      getUserScopedStorageKey(currentUser.id, STORAGE_KEYS.latestResult),
+      latestResult
+    );
+  }, [currentUser, isUserDataReady, latestResult]);
 
   useEffect(() => {
-    writeStorage(STORAGE_KEYS.metrics, metrics);
-  }, [metrics]);
+    if (!currentUser?.id || !isUserDataReady) {
+      return;
+    }
+
+    writeStorage(
+      getUserScopedStorageKey(currentUser.id, STORAGE_KEYS.savedResults),
+      savedResults
+    );
+  }, [currentUser, isUserDataReady, savedResults]);
+
+  useEffect(() => {
+    if (!currentUser?.id || !isUserDataReady) {
+      return;
+    }
+
+    writeStorage(
+      getUserScopedStorageKey(currentUser.id, STORAGE_KEYS.metrics),
+      metrics
+    );
+  }, [currentUser, isUserDataReady, metrics]);
 
   const toggleTheme = () => {
     setTheme((currentTheme) => (currentTheme === 'light' ? 'dark' : 'light'));
+  };
+
+  const signUp = async ({ email, fullName, password }) => {
+    const normalizedEmail = normalizeEmail(email);
+    const users = readStorage(STORAGE_KEYS.users, []);
+    const userExists = users.some((user) => user.email === normalizedEmail);
+
+    if (userExists) {
+      return { success: false, message: 'An account with this email already exists.' };
+    }
+
+    const passwordHash = await hashPassword(password);
+    const newUser = {
+      id: crypto.randomUUID?.() || `user-${Date.now()}`,
+      fullName: fullName.trim(),
+      email: normalizedEmail,
+      passwordHash,
+      createdAt: new Date().toISOString(),
+    };
+
+    writeStorage(STORAGE_KEYS.users, [...users, newUser]);
+    setCurrentUser(sanitizeUser(newUser));
+
+    return { success: true, message: 'Account created successfully.' };
+  };
+
+  const login = async ({ email, password }) => {
+    const normalizedEmail = normalizeEmail(email);
+    const passwordHash = await hashPassword(password);
+    const users = readStorage(STORAGE_KEYS.users, []);
+    const matchedUser = users.find(
+      (user) =>
+        user.email === normalizedEmail && user.passwordHash === passwordHash
+    );
+
+    if (!matchedUser) {
+      return {
+        success: false,
+        message: 'Incorrect email or password. Please try again.',
+      };
+    }
+
+    setCurrentUser(sanitizeUser(matchedUser));
+    return { success: true, message: 'Logged in successfully.' };
+  };
+
+  const logout = () => {
+    setCurrentUser(null);
   };
 
   const registerScan = (result) => {
@@ -93,6 +198,10 @@ export function AppProvider({ children }) {
   };
 
   const value = {
+    currentUser,
+    isAuthenticated: Boolean(currentUser),
+    login,
+    logout,
     theme,
     isDarkMode: theme === 'dark',
     latestResult,
@@ -100,6 +209,7 @@ export function AppProvider({ children }) {
     registerScan,
     saveResult,
     savedResults,
+    signUp,
     toggleTheme,
   };
 

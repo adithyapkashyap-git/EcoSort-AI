@@ -96,6 +96,30 @@
   gap: 12px;
 }
 
+.user-pill {
+  display: grid;
+  gap: 2px;
+  padding: 10px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: 18px;
+  background: var(--color-surface-muted);
+}
+
+.user-pill__name,
+.user-pill__email {
+  display: block;
+}
+
+.user-pill__name {
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.user-pill__email {
+  color: var(--color-text-soft);
+  font-size: 0.76rem;
+}
+
 .theme-toggle {
   min-height: 46px;
   padding: 0 16px;
@@ -165,6 +189,7 @@
   }
 
   .site-nav__link,
+  .user-pill,
   .theme-toggle,
   .site-header__actions .btn {
     width: 100%;
