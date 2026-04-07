@@ -77,24 +77,29 @@ function Header() {
             </nav>
 
             <div className="site-header__actions">
-              <div className="user-pill">
-                <span className="user-pill__name">{currentUser?.fullName}</span>
-                <span className="user-pill__email">{currentUser?.email}</span>
+              <div className="account-cluster">
+                <div className="user-pill">
+                  <span className="user-pill__name">{currentUser?.fullName}</span>
+                  <span className="user-pill__email">{currentUser?.email}</span>
+                </div>
+                <button className="logout-link" onClick={handleLogout} type="button">
+                  Logout
+                </button>
               </div>
-              <button
-                className="theme-toggle"
-                type="button"
-                onClick={toggleTheme}
-                aria-label="Toggle dark mode"
-              >
-                {isDarkMode ? 'Light mode' : 'Dark mode'}
-              </button>
-              <Button to="/result" onClick={handleCloseMenu}>
-                Latest Scan
-              </Button>
-              <Button variant="ghost" onClick={handleLogout}>
-                Logout
-              </Button>
+
+              <div className="utility-cluster">
+                <button
+                  className="theme-toggle"
+                  type="button"
+                  onClick={toggleTheme}
+                  aria-label="Toggle dark mode"
+                >
+                  {isDarkMode ? 'Light mode' : 'Dark mode'}
+                </button>
+                <Button to="/result" onClick={handleCloseMenu}>
+                  Latest Scan
+                </Button>
+              </div>
             </div>
           </div>
         </div>

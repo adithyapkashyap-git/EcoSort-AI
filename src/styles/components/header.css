@@ -58,15 +58,20 @@
 }
 
 .site-header__panel {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
-  gap: 24px;
+  gap: 18px;
+  flex: 1;
+  min-width: 0;
 }
 
 .site-nav {
   display: flex;
   align-items: center;
   gap: 10px;
+  flex-wrap: wrap;
+  min-width: 0;
 }
 
 .site-nav__link {
@@ -94,15 +99,25 @@
   display: flex;
   align-items: center;
   gap: 12px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+.account-cluster {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--color-border);
+  border-radius: 18px;
+  background: var(--color-surface-muted);
 }
 
 .user-pill {
   display: grid;
   gap: 2px;
-  padding: 10px 14px;
-  border: 1px solid var(--color-border);
-  border-radius: 18px;
-  background: var(--color-surface-muted);
+  min-width: 0;
 }
 
 .user-pill__name,
@@ -111,6 +126,9 @@
 }
 
 .user-pill__name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   font-size: 0.9rem;
   font-weight: 700;
 }
@@ -118,6 +136,33 @@
 .user-pill__email {
   color: var(--color-text-soft);
   font-size: 0.76rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.logout-link {
+  min-height: 40px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 999px;
+  color: var(--color-primary-dark);
+  font-weight: 700;
+  background: var(--color-accent-soft);
+  cursor: pointer;
+  transition:
+    transform var(--transition-base),
+    background-color var(--transition-base);
+}
+
+.logout-link:hover {
+  transform: translateY(-1px);
+}
+
+.utility-cluster {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .theme-toggle {
@@ -159,7 +204,7 @@
   background: var(--color-primary-dark);
 }
 
-@media (max-width: 1080px) {
+@media (max-width: 1360px) {
   .site-header__inner {
     align-items: flex-start;
     flex-wrap: wrap;
@@ -173,7 +218,7 @@
   .site-header__panel {
     display: none;
     width: 100%;
-    flex-direction: column;
+    grid-template-columns: 1fr;
     align-items: stretch;
     padding-top: 8px;
   }
@@ -183,17 +228,28 @@
   }
 
   .site-nav,
-  .site-header__actions {
+  .site-header__actions,
+  .utility-cluster {
     flex-direction: column;
     align-items: stretch;
   }
 
   .site-nav__link,
-  .user-pill,
+  .account-cluster,
   .theme-toggle,
-  .site-header__actions .btn {
+  .utility-cluster .btn,
+  .logout-link {
     width: 100%;
     justify-content: center;
+    text-align: center;
+  }
+
+  .account-cluster {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .user-pill {
     text-align: center;
   }
 }
