@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ImageDropzone from '../components/forms/ImageDropzone';
+import WebcamCapture from '../components/forms/WebcamCapture';
 import MainLayout from '../components/layout/MainLayout';
 import Button from '../components/ui/Button';
 import Card from '../components/ui/Card';
@@ -29,8 +30,26 @@ function Home() {
     'Loading vision models for more accurate identification...'
   );
   const [isScanning, setIsScanning] = useState(false);
+  const [isWebcamOpen, setIsWebcamOpen] = useState(false);
+  const [isWebcamStarting, setIsWebcamStarting] = useState(false);
+  const [webcamError, setWebcamError] = useState('');
+  const videoRef = useRef(null);
+  const streamRef = useRef(null);
 
   const tipOfTheDay = sortingTips[new Date().getDate() % sortingTips.length];
+
+  const stopWebcamStream = useCallback(() => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((track) => {
+        track.stop();
+      });
+      streamRef.current = null;
+    }
+
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
+    }
+  }, []);
 
   useEffect(() => {
     let isMounted = true;
@@ -53,19 +72,24 @@ function Home() {
 
     return () => {
       isMounted = false;
+      stopWebcamStream();
     };
-  }, []);
+  }, [stopWebcamStream]);
 
-  const handleSelectFile = async (file) => {
+  const applySelectedFile = async (file, providedPreviewUrl) => {
     setSelectedFile(file);
     setStatusMessage(`${file.name} is ready for AI identification.`);
 
     try {
-      const imageUrl = await fileToDataUrl(file);
+      const imageUrl = providedPreviewUrl || (await fileToDataUrl(file));
       setPreviewUrl(imageUrl);
     } catch (error) {
       setStatusMessage(error.message);
     }
+  };
+
+  const handleSelectFile = async (file) => {
+    await applySelectedFile(file);
   };
 
   const handleDragEnter = (event) => {
@@ -118,8 +142,108 @@ function Home() {
     }
   };
 
-  const handleWebcamClick = () => {
-    setStatusMessage('Webcam capture UI is prepared for a future live-camera step.');
+  const startWebcam = useCallback(async () => {
+    if (!navigator.mediaDevices?.getUserMedia) {
+      const message = 'This browser does not support webcam access.';
+      setWebcamError(message);
+      setStatusMessage(message);
+      return;
+    }
+
+    if (streamRef.current && videoRef.current?.srcObject) {
+      return;
+    }
+
+    setIsWebcamStarting(true);
+    setWebcamError('');
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: false,
+        video: {
+          facingMode: { ideal: 'environment' },
+        },
+      });
+
+      streamRef.current = stream;
+
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        await videoRef.current.play();
+      }
+
+      setStatusMessage('Camera is live. Capture a waste photo when ready.');
+    } catch (error) {
+      const message =
+        error?.name === 'NotAllowedError'
+          ? 'Camera permission was denied. Please allow access and try again.'
+          : 'Unable to access the webcam right now.';
+
+      setWebcamError(message);
+      setStatusMessage(message);
+    } finally {
+      setIsWebcamStarting(false);
+    }
+  }, []);
+
+  const handleWebcamClick = async () => {
+    setIsWebcamOpen(true);
+    await startWebcam();
+  };
+
+  const handleCloseWebcam = () => {
+    stopWebcamStream();
+    setIsWebcamOpen(false);
+    setWebcamError('');
+    setStatusMessage('Webcam closed. You can reopen it or upload an image.');
+  };
+
+  const handleCaptureFromWebcam = async () => {
+    const videoElement = videoRef.current;
+
+    if (!videoElement || !videoElement.videoWidth || !videoElement.videoHeight) {
+      const message = 'The webcam is not ready yet. Start the camera and try again.';
+      setWebcamError(message);
+      setStatusMessage(message);
+      return;
+    }
+
+    const canvas = document.createElement('canvas');
+    canvas.width = videoElement.videoWidth;
+    canvas.height = videoElement.videoHeight;
+
+    const context = canvas.getContext('2d');
+
+    if (!context) {
+      const message = 'Unable to capture a frame from the webcam.';
+      setWebcamError(message);
+      setStatusMessage(message);
+      return;
+    }
+
+    context.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+    const capturedPreviewUrl = canvas.toDataURL('image/jpeg', 0.92);
+
+    const capturedBlob = await new Promise((resolve) => {
+      canvas.toBlob(resolve, 'image/jpeg', 0.92);
+    });
+
+    if (!capturedBlob) {
+      const message = 'The camera frame could not be converted into an image.';
+      setWebcamError(message);
+      setStatusMessage(message);
+      return;
+    }
+
+    const capturedFile = new File([capturedBlob], `webcam-capture-${Date.now()}.jpg`, {
+      type: 'image/jpeg',
+    });
+
+    await applySelectedFile(capturedFile, capturedPreviewUrl);
+    stopWebcamStream();
+    setIsWebcamOpen(false);
+    setWebcamError('');
+    setStatusMessage('Webcam photo captured successfully. Ready for identification.');
   };
 
   return (
@@ -139,8 +263,12 @@ function Home() {
               <Button disabled={isScanning} onClick={handleIdentifyWaste}>
                 {isScanning ? 'Identifying...' : 'Identify Waste'}
               </Button>
-              <Button variant="secondary" onClick={handleWebcamClick}>
-                Open Webcam
+              <Button
+                disabled={isWebcamStarting}
+                variant="secondary"
+                onClick={handleWebcamClick}
+              >
+                {isWebcamOpen ? 'Camera Active' : 'Open Webcam'}
               </Button>
             </div>
 
@@ -171,6 +299,16 @@ function Home() {
             previewUrl={previewUrl}
           />
         </div>
+
+        <WebcamCapture
+          errorMessage={webcamError}
+          isOpen={isWebcamOpen}
+          isStarting={isWebcamStarting}
+          onCapture={handleCaptureFromWebcam}
+          onClose={handleCloseWebcam}
+          onStart={startWebcam}
+          videoRef={videoRef}
+        />
 
         <div className="home-screen__grid">
           <Card className="tip-card" tone="accent">
